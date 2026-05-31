@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     
     "users",
     "hydrations",
+    "chats",
     "drinks",
     "trustedcontacts"
 ]
