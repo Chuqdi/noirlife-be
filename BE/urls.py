@@ -9,4 +9,5 @@ urlpatterns = [
     path("drinks/",include("drinks.urls")),
     path("trustedcontacts/",include("trustedcontacts.urls")),
     path("hydrations/",include("hydrations.urls")),
+    path("chat/",include("chats.urls")),
 ]
