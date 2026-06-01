@@ -10,11 +10,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+import os
 from pathlib import Path
-
+from dotenv import load_dotenv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+load_dotenv()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -155,4 +156,4 @@ REST_FRAMEWORK = {
 
 AUTH_USER_MODEL = 'users.User'
 CORS_ALLOW_ALL_ORIGINS=True
-OPENAI_API_KEY ="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"
+OPENAI_API_KEY =os.getenv("OPEN_API_KEY")
