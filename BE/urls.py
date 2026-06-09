@@ -10,4 +10,8 @@ urlpatterns = [
     path("trustedcontacts/",include("trustedcontacts.urls")),
     path("hydrations/",include("hydrations.urls")),
     path("chat/",include("chats.urls")),
+    path("memories/",include("memories.urls")),
+    path("notifications/",include("notifications.urls")),
+    path("places/",include("places.urls")),
+    path("lockeddestinations/",include("lockeddestinations.urls")),
 ]

@@ -1,10 +1,9 @@
-
 import threading
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.shortcuts import render
 import json
 from email_validator import validate_email
-from users.models import    DeviceToken,  ReferalCode, User
+from users.models import DeviceToken, ReferalCode, User, UserEmailActivationCode
 from users.serializers import (
     ReferalCodeSerializer,
     SignUpSerializer,
@@ -22,46 +21,43 @@ from django.contrib.auth import logout
 from utils.ResponseGenerator import ResponseGenerator
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
-from utils.helpers import generateUserOTP,validateOTPCode
+from utils.helpers import generateUserOTP, validateOTPCode
 from utils.TokenGenerator import generateToken
 from datetime import date, datetime
 from django_celery_beat.models import PeriodicTask, ClockedSchedule
 from datetime import timedelta
-from utils.tasks import  send_email
+from utils.tasks import send_email
 from django.utils import timezone
-
-
 
 
 def schedule_onboarding_emails(user_email, signup_time=None):
     if signup_time is None:
         signup_time = timezone.now()
-    
+
     schedules = [
-        ('second', timedelta(hours=24)),
-        ('third', timedelta(hours=72)),
-        ('fourth', timedelta(days=7)),
+        ("second", timedelta(hours=24)),
+        ("third", timedelta(hours=72)),
+        ("fourth", timedelta(days=7)),
     ]
-    
+
     for email_type, delay in schedules:
         scheduled_time = signup_time + delay
-        
+
         # Create a ClockedSchedule for the specific time
-        clocked, _ = ClockedSchedule.objects.get_or_create(
-            clocked_time=scheduled_time
-        )
-        
+        clocked, _ = ClockedSchedule.objects.get_or_create(clocked_time=scheduled_time)
+
         # Create or update the periodic task
         PeriodicTask.objects.update_or_create(
-            name=f'onboarding_{email_type}_',  # Removed user_email for uniqueness
+            name=f"onboarding_{email_type}_",  # Removed user_email for uniqueness
             defaults={
-                'clocked': clocked,  # Required schedule type
-                'task': 'utils.tasks.send_onboarding_email',
-                'args': json.dumps([user_email, email_type]),
-                'one_off': True,
-                'enabled': True,
-            }
+                "clocked": clocked,  # Required schedule type
+                "task": "utils.tasks.send_onboarding_email",
+                "args": json.dumps([user_email, email_type]),
+                "one_off": True,
+                "enabled": True,
+            },
         )
+
 
 class MarkUserAsPaymentCompleted(APIView):
     def post(self, request):
@@ -71,155 +67,35 @@ class MarkUserAsPaymentCompleted(APIView):
         return ResponseGenerator.response(
             data=SignUpSerializer(user).data,
             message="User payment updated",
-            status=status.HTTP_200_OK
-        )
-
-
-
-class SaveAccountQuestionsView(APIView):
-    permission_classes = [permissions.AllowAny]
-    
-    def post(self, request):
-        """
-        Save or update user's question answers
-        """
-        
-        try:
-            questions_answers = request.data.get("data")
-            email = request.data.get("email")
-            phone_number = request.data.get("phoneNumber")
-            full_name = request.data.get("fullName")
-            questions_answers = json.loads(questions_answers)
-            
-            message = render_to_string(
-            "emails/reaching_out.html", {"name": full_name}
-        )
-            t = threading.Thread(
-                target=send_email,
-                args=(
-                    f"Welcome to Heyhavlo",
-                    message,
-                    [email],
-                ),
-            )
-            t.start()
-            
-            
-           
-           
-            
-            try:
-                emailinfo = validate_email(email, check_deliverability=False)
-            except :
-                return ResponseGenerator.response(data={},message="Your email is invalid", status=status.HTTP_400_BAD_REQUEST)
-                
-            
-            # Validate that data is a list
-            if not isinstance(questions_answers, list):
-                return ResponseGenerator.response(
-                    data={},
-                    message="Data must be an array of question-answer pairs",
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            
-            
-            
-            # Get or create AccountQuestions for the user
-            account_questions, created = AccountQuestions.objects.get_or_create(
-                email=email
-            )
-            
-            
-            # Update questions_answers
-            account_questions.questions_answers = questions_answers
-            account_questions.save()
-            
-            # Serialize and return
-            serializer = AccountQuestionsSerializer(account_questions)
-            
-            return ResponseGenerator.response(
-                data=serializer.data,
-                message="Questions saved successfully",
-                status=status.HTTP_201_CREATED if created else status.HTTP_200_OK
-            )
-            
-        except Exception as e:
-            return ResponseGenerator.response(
-                data={},
-                message=str(e),
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-    
-    def get(self, request):
-        """
-        Get user's saved questions
-        """
-        try:
-            account_questions = AccountQuestions.objects.get(user=request.user)
-            serializer = AccountQuestionsSerializer(account_questions)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except AccountQuestions.DoesNotExist:
-            return Response(
-                {"error": "No questions found for this user"},
-                status=status.HTTP_404_NOT_FOUND
-            )
-
-
-
-class UpdateUserCreditCountView(APIView):
-    def post(self, request):
-        user = request.user
-        credits = request.data.get("credit_count")
-        user.credit_count = user.credit_count + int(credits)
-        user.save()
-        
-        return ResponseGenerator.response(
-            data=SignUpSerializer(user).data,
-            message="Credit increased",
-            status=status.HTTP_200_OK
-        )
-class UpdateCompanyProfileView(APIView):
-    def post(self, request):
-        data = request.data.copy() if hasattr(request.data, 'copy') else dict(request.data)
-        data['business_info_completed'] = True
-        user =request.user
-        print(data)
-        serializer = SignUpSerializer(data=data,instance=user, partial=True)
-        
-        if serializer.is_valid():
-            serializer.save()
-            return ResponseGenerator.response(
-                data=serializer.data,
-                status=status.HTTP_200_OK,
-                message="Message"
-            )
-        print(serializer.errors)
-        return ResponseGenerator.response(
-            data={},
-            status=status.HTTP_400_BAD_REQUEST,
-            message="Saved"
+            status=status.HTTP_200_OK,
         )
 
 
 class ContactUsView(APIView):
-    permission_classes = [ permissions.AllowAny ]
+    permission_classes = [permissions.AllowAny]
+
     def post(self, request):
-        first_name = request.data.get('first_name')
-        email = request.data.get('email')
-        message = request.data.get('message')
-        last_name = request.data.get('last_name')
+        first_name = request.data.get("first_name")
+        email = request.data.get("email")
+        message = request.data.get("message")
+        last_name = request.data.get("last_name")
         # ContactUsEmail.objects.create(first_name=first_name,last_name=last_name,email=email, message=message)
-        
-        return ResponseGenerator.response(data={"status":True}, status=status.HTTP_201_CREATED, message="Contact Us email sent successfully")
-        
+
+        return ResponseGenerator.response(
+            data={"status": True},
+            status=status.HTTP_201_CREATED,
+            message="Contact Us email sent successfully",
+        )
 
 
 class UserEmailListView(APIView):
     def get(self, request):
-        emails = User.objects.values_list('email', flat=True)
+        emails = User.objects.values_list("email", flat=True)
         emails_list = list(emails)
-        
-        return ResponseGenerator.response(data=emails_list,message="Users emails", status=status.HTTP_200_OK)
+
+        return ResponseGenerator.response(
+            data=emails_list, message="Users emails", status=status.HTTP_200_OK
+        )
 
 
 class GetUsersStats(APIView):
@@ -258,13 +134,10 @@ class GetUsersView(APIView):
         total = User.objects.all()
         users = total
         if planName:
-            users = users.filter(
-                Q(planName__icontains=planName)
-            )
+            users = users.filter(Q(planName__icontains=planName))
         if searchText:
             users = users.filter(
-                Q(email__icontains=searchText)
-                | Q(full_name__icontains=searchText)
+                Q(email__icontains=searchText) | Q(full_name__icontains=searchText)
             )
 
         if user_status == "Inactive":
@@ -477,7 +350,7 @@ class RegisterUserView(APIView):
 
     def post(self, request):
         s = SignUpSerializer(data=request.data)
-        email = request.data.get("email")
+        email = request.data.get("email").lower()
         if User.objects.filter(email=email).exists():
             return ResponseGenerator.response(
                 data={},
@@ -488,18 +361,16 @@ class RegisterUserView(APIView):
         if s.is_valid():
             s.save()
 
-            
-
             user = User.objects.get(email=email)
             user.is_active = True
             user.save()
-            
+            generateUserOTP(user)
 
-            responseData = {"data": s.data, "token": user.auth_token.key,}
-            
-            
-            
-           
+            responseData = {
+                "data": {**s.data, "email": email},
+                "token": user.auth_token.key,
+            }
+
             return ResponseGenerator.response(
                 data=responseData,
                 message="User  registered successfully",
@@ -571,7 +442,7 @@ class LoginUserView(APIView):
             )
 
         if checking_password:
-          
+
             return ResponseGenerator.response(
                 data={
                     "data": SignUpSerializer(user).data,
@@ -613,17 +484,15 @@ class DeleteUserWithEmail(APIView):
         try:
             user = User.objects.get(email=email)
             user.delete()
-            return Response(
-                data={
-                    "message": "User deleted successfully",
-                },
+            return ResponseGenerator.response(
+                data={},
+                message="User deleted",
                 status=status.HTTP_200_OK,
             )
         except User.DoesNotExist as e:
-            return Response(
-                data={
-                    "message": "User with this email does not exist",
-                },
+            return ResponseGenerator.response(
+                data={},
+                message="Error deleting user",
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -672,7 +541,7 @@ class ForgotPasswordRequest(APIView):
     def post(self, request):
         email = request.data.get("email")
 
-        user = User.objects.filter(email=email)
+        user = User.objects.filter(email__iexact=email)
 
         if not user.exists():
             return ResponseGenerator.response(
@@ -683,10 +552,10 @@ class ForgotPasswordRequest(APIView):
 
         c = generateUserOTP(user[0].email)
         emailMessage = f"We received a request to reset the password for your account associated with this email address. If you didn't request a password reset, please ignore this email. To reset your password, please use the code below \n\n {c} "
-        message = render_to_string(
-            "emails/message.html",
-            {"message": emailMessage, "name": f"{user[0].full_name}"},
-        )
+        # message = render_to_string(
+        #     "emails/message.html",
+        #     {"message": emailMessage, "name": f"{user[0].full_name}"},
+        # )
         # t = threading.Thread(
         #     target=send_email, args=("Your Password reset", message, [email])
         # )
@@ -700,6 +569,28 @@ class ForgotPasswordRequest(APIView):
 
 
 class ContinueForgotOTPPassword(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        code = request.data.get("code")
+        validatingOTP = validateOTPCode(code)
+        if not validatingOTP.get("type"):
+            return ResponseGenerator.response(
+                data={},
+                message=validatingOTP.get("message"),
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user = validatingOTP.get("code").user
+
+        return ResponseGenerator.response(
+            data=SignUpSerializer(user).data,
+            message="User authenticated successfully",
+            status=status.HTTP_200_OK,
+        )
+
+
+class VerifyOTP(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
@@ -727,14 +618,18 @@ class CompletePasswordReset(APIView):
 
     def post(self, request):
         password = request.data.get("password")
+        email = request.data.get("email")
+        print(email)
 
         if not password:
-            return Response(
-                data={"message": "Please enter your password"},
+            return ResponseGenerator.response(
+                message="Please enter your password",
+                data={},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        user = get_user_model().objects.get(id=request.data.get("user_id"))
+        user = get_user_model().objects.get(email__iexact=email)
+
         user.set_password(password)
         user.save()
 
@@ -752,7 +647,7 @@ class GetUserWithID(APIView):
             user = User.objects.get(id=id)
             return ResponseGenerator.response(
                 data=SignUpSerializer(user).data,
-                    message= "User retrieved successfully",
+                message="User retrieved successfully",
                 status=status.HTTP_200_OK,
             )
         except User.DoesNotExist:
@@ -776,13 +671,15 @@ class UpdateUserPassword(APIView):
         user = get_user_model().objects.get(id=request.user.id)
 
         if not user.check_password(old_password):
-            return Response(
-                data={"message": "Your old password is incorrect"},
+            return ResponseGenerator.response(
+                data={},
                 status=status.HTTP_400_BAD_REQUEST,
+                message="Your old password is incorrect",
             )
         if user.check_password(password):
-            return Response(
-                data={"message": "Password must not be the same as the old one"},
+            return ResponseGenerator.response(
+                data={},
+                message="Error updating user password",
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -790,7 +687,7 @@ class UpdateUserPassword(APIView):
         user.save()
 
         return ResponseGenerator.response(
-            data={"message": "User password updated"},
+            data=SignUpSerializer(user).data,
             message="User password updated",
             status=status.HTTP_202_ACCEPTED,
         )
@@ -880,12 +777,12 @@ class UpdateCVDocument(APIView):
         cv = request.FILES.get("cv")
         cover_letter = request.FILES.get("cover_letter")
         user = request.user
-        
+
         if cv:
             user.cv = cv
         if cover_letter:
             user.cover_letter = cover_letter
-            
+
         user.save()
 
         return Response(
@@ -917,11 +814,12 @@ class GetUserTokenWithEmail(APIView):
 
 
 class UpdateUser(APIView):
-    def sendEmailNow(self,user:User,title:str, template:str, data:object):
-        data_obj = {**data,"name": user.full_name.strip(), }
-        message = render_to_string(
-                template,data_obj
-        )
+    def sendEmailNow(self, user: User, title: str, template: str, data: object):
+        data_obj = {
+            **data,
+            "name": user.full_name.strip(),
+        }
+        message = render_to_string(template, data_obj)
         t = threading.Thread(
             target=send_email,
             args=(
@@ -931,36 +829,33 @@ class UpdateUser(APIView):
             ),
         )
         t.start()
+
     def post(self, request):
         user = request.user
         data = request.data
         signup_stage = data.get("signup_stage", "")
         send_payment_email = data.get("send_payment_email")
-        
-        
-       
+
         if signup_stage == "ANSWERED":
             self.sendEmailNow(
-                user = user,
+                user=user,
                 title="Spot secured",
-                template ="emails/secure_spot.html",
-                data = {}
+                template="emails/secure_spot.html",
+                data={},
             )
         if send_payment_email == "YES":
             amount = data.get("amount", "")
             planName = data.get("planName", "")
             invoice = Invoice.objects.create(
-                user =user,
-                amount =amount, 
-                planName=planName
+                user=user, amount=amount, planName=planName
             )
             self.sendEmailNow(
-                user = user,
+                user=user,
                 title="Payment Invoice",
-                template ="emails/receipt.html",
-                data = {"inv":invoice,"ref_code":user.ref_code}
+                template="emails/receipt.html",
+                data={"inv": invoice, "ref_code": user.ref_code},
             )
-            
+
         serializer = SignUpSerializer(instance=user, data=data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -969,51 +864,44 @@ class UpdateUser(APIView):
             )
 
 
-
 class UpdateUserView(APIView):
 
-        
     def patch(self, request):
         user = request.user
-        
-        serializer = SignUpSerializer(user, data=request.data,partial=True)
+
+        serializer = SignUpSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return ResponseGenerator.response(
                 data=serializer.data,
                 message="User updated",
-                status=status.HTTP_202_ACCEPTED
+                status=status.HTTP_202_ACCEPTED,
             )
-        
+
         return ResponseGenerator.response(
-            data={},
-            message="user was not updated",
-            status=status.HTTP_400_BAD_REQUEST
+            data={}, message="user was not updated", status=status.HTTP_400_BAD_REQUEST
         )
-        
-        
+
+
 class AccountQuestionsSerializerView(APIView):
     def get(self, request):
-        user = request.user 
-        account_question =  AccountQuestions.objects.get_or_create(user = user)
-        account_question , created = account_question
+        user = request.user
+        account_question = AccountQuestions.objects.get_or_create(user=user)
+        account_question, created = account_question
         return ResponseGenerator.response(
-            data = AccountQuestionsSerializer(account_question).data,
+            data=AccountQuestionsSerializer(account_question).data,
             message="Created",
-            status=status.HTTP_201_CREATED
-            
+            status=status.HTTP_201_CREATED,
         )
-        
+
     def post(self, request):
         user = request.user
         data = request.data
-        
-        AccountQuestions.objects.update_or_create(user=user, defaults={
-            "questions_answers":data
-        })
-        
+
+        AccountQuestions.objects.update_or_create(
+            user=user, defaults={"questions_answers": data}
+        )
+
         return ResponseGenerator.response(
-            data=True,
-            message="Created",
-            status=status.HTTP_200_OK
+            data=True, message="Created", status=status.HTTP_200_OK
         )

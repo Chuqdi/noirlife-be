@@ -37,19 +37,26 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    "django.contrib.staticfiles",
     
     "corsheaders",
     "rest_framework",
     "rest_framework.authtoken",
     "django_celery_beat",
+    'cloudinary',
+    'cloudinary_storage',
     "django_celery_results",
+    "django.contrib.staticfiles",
+    
     
     "users",
     "hydrations",
     "chats",
     "drinks",
-    "trustedcontacts"
+    "trustedcontacts",
+    "memories",
+    "notifications",
+    "places",
+    "lockeddestinations"
 ]
 
 MIDDLEWARE = [
@@ -157,3 +164,23 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = 'users.User'
 CORS_ALLOW_ALL_ORIGINS=True
 OPENAI_API_KEY =os.getenv("OPEN_API_KEY")
+
+
+
+
+# Replaces default Django file storage
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
+}
+
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}

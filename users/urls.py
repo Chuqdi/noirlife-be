@@ -2,7 +2,7 @@ from django.urls import path
 from .views import (
     ActivateUserEmail,
     CompletePasswordReset,
-    ContinueForgotOTPPassword,
+    VerifyOTP,
     DeleteUserWithEmail,
     ForgotPasswordRequest,
     GetUserReferalCode,
@@ -11,7 +11,6 @@ from .views import (
     GetUsersStats,
     GetUsersView,
     LoginUserView,
-    SaveAccountQuestionsView,
     UpdateProfileImage,
     UpdateUser,
     UpdateUserBasicInformation,
@@ -29,13 +28,11 @@ from .views import (
     UsersStatsView,
     UpdateAdminPassword,
     AddUserDeviceToken,
-    UpdateCVDocument,
     ValidateEmail,
     UserEmailListView,
     ContactUsView,
     AccountQuestionsSerializerView,
-    UpdateCompanyProfileView,
-    UpdateUserCreditCountView
+    ContinueForgotOTPPassword
 )
 
 
@@ -46,7 +43,6 @@ urlpatterns = [
         GetUsersView.as_view(),
     ),
     path("update_user_as_paid/", MarkUserAsPaymentCompleted.as_view()),
-    path("save_questions/", SaveAccountQuestionsView.as_view()),
     path("get_users_emails/", UserEmailListView.as_view()),
     path("users_stats/", GetUsersStats.as_view()),
     path(
@@ -75,23 +71,26 @@ urlpatterns = [
         "validate_email/",
         ValidateEmail.as_view(),
     ),
-    path("update_company_profile/", UpdateCompanyProfileView.as_view()),
     ##USER
     path("login/", LoginUserView.as_view()),
     path("register/", RegisterUserView.as_view()),
     path("logout/", LogoutUser.as_view(), name="logout"),
     path("me/", UserMeAuth.as_view(), name="user_me_auth"),
-    path("update_credit_count/", UpdateUserCreditCountView.as_view()),
     path(
         "get_user_referal_code/",
         GetUserReferalCode.as_view(),
         name="get_user_referal_code",
     ),
-    path("forgot_password/", ForgotPasswordRequest.as_view(), name="forgot_password"),
     path(
         "continue_forgot_password/",
         ContinueForgotOTPPassword.as_view(),
         name="continue_forgot_password",
+    ),
+    path("forgot_password/", ForgotPasswordRequest.as_view(), name="forgot_password"),
+    path(
+        "verify_otp/",
+        VerifyOTP.as_view(),
+        name="verify_otp",
     ),
     path(
         "complete_password_reset/",

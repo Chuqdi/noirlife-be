@@ -10,6 +10,22 @@ from django.db.models.functions import TruncHour, TruncDate, TruncWeek
 
 
 
+
+
+
+class SingleDrinkAPIView(APIView):
+    def delete(self, request, id):
+        try:
+            drink = Drink.objects.get(id = id)
+            drink.delete()
+        except Drink.DoesNotExist as e:
+            pass
+        return ResponseGenerator.response(
+            data={},
+            status=status.HTTP_200_OK,
+            message="Deleted"
+        )
+
 class DrinkView(APIView):
     def post(self, request):
         data = {**request.data, "user": request.user.id}

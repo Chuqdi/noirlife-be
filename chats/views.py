@@ -139,6 +139,7 @@ class SendMessageView(APIView):
             current_content = text
 
         history.append({"role": "user", "content": current_content})
+       
 
         # ── Call ChatGPT ──────────────────────────────────────────────────────
         try:
@@ -159,11 +160,14 @@ class SendMessageView(APIView):
             )
             reply_text = response.choices[0].message.content
         except Exception as e:
+            print(e)
             return ResponseGenerator.response(
                 data=None,
                 status=status.HTTP_502_BAD_GATEWAY,
                 message=f"ChatGPT error: {str(e)}"
             )
+       
+        
 
         # ── Persist model reply ───────────────────────────────────────────────
         model_message = Message.objects.create(
