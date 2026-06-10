@@ -15,6 +15,7 @@ class LockedDestination(models.Model):
     )
     scheduled_time = models.DateTimeField(null=True, blank=True)
     starting_point_name = models.CharField(max_length=700)
+    destination_address_name= models.CharField(max_length=700, null=True, blank=True)
     destination_name = models.CharField(max_length=700)
     starting_coords = models.JSONField()
     ending_coords = models.JSONField()
