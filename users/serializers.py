@@ -51,7 +51,8 @@ class SignUpSerializer(serializers.ModelSerializer):
             "date_joined",
             "phone_number",
             "ref_code",
-            "is_book_session_payment_completed"
+            "is_book_session_payment_completed",
+            "safe_word"
         ]
         
 

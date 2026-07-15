@@ -98,6 +98,28 @@ class UserEmailListView(APIView):
         )
 
 
+
+
+class SaveUserSafeWordView(APIView):
+    def post(self, request):
+        safe_word = request.data.get("safeWord")
+        if not safe_word:
+            return ResponseGenerator.response(
+                data={},
+                message="Safe word not found",
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        user = request.user
+        user.safe_word = safe_word
+        user.save()
+        
+        return ResponseGenerator.response(
+            data=SignUpSerializer(user).data,
+            status=status.HTTP_200_OK,
+            message="User safeword updated"
+        )
+
 class GetUsersStats(APIView):
     def get(self, request):
         total_users = User.objects.all()

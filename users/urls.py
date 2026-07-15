@@ -32,7 +32,8 @@ from .views import (
     UserEmailListView,
     ContactUsView,
     AccountQuestionsSerializerView,
-    ContinueForgotOTPPassword
+    ContinueForgotOTPPassword,
+    SaveUserSafeWordView
 )
 
 
@@ -49,6 +50,7 @@ urlpatterns = [
         "get_users/",
         GetPostAdministrators.as_view(),
     ),
+    path("update_safe_word/",SaveUserSafeWordView.as_view(),),
     path(
         "update_user_token/",
         AddUserDeviceToken.as_view(),
