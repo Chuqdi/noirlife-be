@@ -74,6 +74,15 @@ class TrustContactDetailView(APIView):
         
         
 class TrustContactView(APIView):
+    def get(self, request):
+        trusted_contacts = TrustedContact.objects.filter(
+            user = request.user
+        )
+        return ResponseGenerator.response(
+            data=TrustedContactSerializer(trusted_contacts, many=True).data,
+            status=status.HTTP_200_OK,
+            message="Trusted contacts"
+        )
     def post(self, request):
         data = {**request.data, "user":request.user.id}
         serializer = TrustedContactSerializer(
