@@ -384,9 +384,19 @@ class RegisterUserView(APIView):
             s.save()
 
             user = User.objects.get(email=email)
-            user.is_active = True
-            user.save()
+            # user.is_active = True
+            # user.save()
             generateUserOTP(user)
+            name = user.full_name
+            
+            message = render_to_string(
+                "emails/welcome.html", {"name": f"{name}"}
+            )
+            t = threading.Thread(
+                target=send_email, args=(f"Welcome {name}", message, [email])
+            )
+            t.start()
+
 
             responseData = {
                 "data": {**s.data, "email": email},
@@ -574,14 +584,14 @@ class ForgotPasswordRequest(APIView):
 
         c = generateUserOTP(user[0].email)
         emailMessage = f"We received a request to reset the password for your account associated with this email address. If you didn't request a password reset, please ignore this email. To reset your password, please use the code below \n\n {c} "
-        # message = render_to_string(
-        #     "emails/message.html",
-        #     {"message": emailMessage, "name": f"{user[0].full_name}"},
-        # )
-        # t = threading.Thread(
-        #     target=send_email, args=("Your Password reset", message, [email])
-        # )
-        # t.start()
+        message = render_to_string(
+            "emails/message.html",
+            {"message": emailMessage, "name": f"{user[0].full_name}"},
+        )
+        t = threading.Thread(
+            target=send_email, args=("Your Password reset", message, [email])
+        )
+        t.start()
 
         return ResponseGenerator.response(
             message=f"Forgot Password code sent to email.",

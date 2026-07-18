@@ -1,0 +1,61 @@
+{% include "helpers/header.html" %}
+
+
+
+
+<tr class="bordered" width="100%" style="padding-top: 0; padding-bottom: 0;">
+    <td>
+      <p class="text">Hi {{ transaction.user.full_name }},</p>
+      <p class="text">
+        You've successfully purchased ticket(s) for {{ transaction.event.eventName }}. 
+      </p>
+      <p class="text">Below is your ticket ID</p>
+    </td>
+  </tr>
+
+  <tr style="width: 100%; text-align: center;">
+    <td style="width: 100%;text-align: center;">
+      <div style="width: 100%;background-color: #E6FEF2;margin: 20px auto;border-radius: 10px; padding: 10px;">
+        <p class="text" style="text-align: center; ">TRX-{{ transaction.id }}</p>
+      </div>
+    </td>
+  </tr>
+
+  <tr class="bordered" width="100%" style="padding-top: 0; padding-bottom: 0;">
+      <td style="width: 100%;">
+
+          <p class="text" style="text-align: center;">Use this ID as prove of ticket purchase!</p>
+      </td>
+  </tr>
+
+  <tr class="bordered" style="padding-top: 10px; padding-bottom: 10px;" width="100%">
+    <td style="text-align: center;width: 100%;">
+      <table width="100%" style="text-align: center;">
+        <td style="text-align: center;">
+          <tr style="text-align: center;">
+            <a
+              href="https://www.rocsyard.co.uk/my-tickets"
+              style="
+                background-color: #1A1A1A;
+                padding-left: 200px;
+                padding-top: 20px;
+                border-radius: 8px;
+                color: #fff;
+                text-decoration: none;
+                height: 40px !important;
+                width: 280px;
+                margin: 0 auto;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+              "
+              >See your tickets</a
+            >
+          </tr>
+        </td>
+      </table>
+    </td>
+  </tr>
+
+{% include "helpers/footer.html" %}

@@ -1,0 +1,19 @@
+{% include "helpers/header.html" %}
+
+<tr class="bordered" width="100%">
+  <td>
+    <p class="text">Hi {{ name }},</p>
+
+    <p class="text">{{ message|safe }}</p>
+  </td>
+</tr>
+
+<tr>
+  {% if image %}
+  <td style="text-align: center">
+    <img src="{{image}}" style="width: 300px" />
+  </td>
+  {% endif %}
+</tr>
+
+{% include "helpers/footer.html" %}
