@@ -30,35 +30,6 @@ from utils.tasks import send_email
 from django.utils import timezone
 
 
-def schedule_onboarding_emails(user_email, signup_time=None):
-    if signup_time is None:
-        signup_time = timezone.now()
-
-    schedules = [
-        ("second", timedelta(hours=24)),
-        ("third", timedelta(hours=72)),
-        ("fourth", timedelta(days=7)),
-    ]
-
-    for email_type, delay in schedules:
-        scheduled_time = signup_time + delay
-
-        # Create a ClockedSchedule for the specific time
-        clocked, _ = ClockedSchedule.objects.get_or_create(clocked_time=scheduled_time)
-
-        # Create or update the periodic task
-        PeriodicTask.objects.update_or_create(
-            name=f"onboarding_{email_type}_",  # Removed user_email for uniqueness
-            defaults={
-                "clocked": clocked,  # Required schedule type
-                "task": "utils.tasks.send_onboarding_email",
-                "args": json.dumps([user_email, email_type]),
-                "one_off": True,
-                "enabled": True,
-            },
-        )
-
-
 class MarkUserAsPaymentCompleted(APIView):
     def post(self, request):
         user = request.user
@@ -386,16 +357,25 @@ class RegisterUserView(APIView):
             user = User.objects.get(email=email)
             # user.is_active = True
             # user.save()
-            generateUserOTP(user)
+            code = generateUserOTP(user)
             name = user.full_name
             
+            
+            # ACTIVATION EMAIL
             message = render_to_string(
-                "emails/welcome.html", {"name": f"{name}"}
+                "emails/message.html",
+                {
+                    "name": name,
+                    "message": "Use the code below to activate account",
+                    "code": code,
+                }
             )
             t = threading.Thread(
-                target=send_email, args=(f"Welcome {name}", message, [email])
+                target=send_email, args=(f"Activate Account", message, [email])
             )
             t.start()
+            
+           
 
 
             responseData = {
@@ -637,6 +617,18 @@ class VerifyOTP(APIView):
             )
 
         user = validatingOTP.get("code").user
+        user.is_active =True
+        user.save()
+        name = user.full_name
+        email = user.email
+        
+        message = render_to_string(
+                "emails/welcome.html", {"name": f"{name}"}
+        )
+        t = threading.Thread(
+            target=send_email, args=(f"Welcome {name}", message, [email])
+        )
+        t.start()
 
         return ResponseGenerator.response(
             data=SignUpSerializer(user).data,
