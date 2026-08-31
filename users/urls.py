@@ -33,7 +33,8 @@ from .views import (
     ContactUsView,
     AccountQuestionsSerializerView,
     ContinueForgotOTPPassword,
-    SaveUserSafeWordView
+    SaveUserSafeWordView,
+    GoogleLoginView
 )
 
 
@@ -59,6 +60,7 @@ urlpatterns = [
         "get_users_stats/",
         UsersStatsView.as_view(),
     ),
+    path("google_auth/", GoogleLoginView.as_view()),
     path("toggle_user_active_state/<int:id>/", ToggleUserActiveState.as_view()),
     path(
         "edit_user_with_profile_image/",

@@ -24,11 +24,57 @@ from django.utils.encoding import force_str
 from utils.helpers import generateUserOTP, validateOTPCode
 from utils.TokenGenerator import generateToken
 from datetime import date, datetime
-from django_celery_beat.models import PeriodicTask, ClockedSchedule
-from datetime import timedelta
 from utils.tasks import send_email
-from django.utils import timezone
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
+from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
+from rest_framework.authtoken.models import Token
+from django.contrib.auth import get_user_model
+from django.conf import settings
 
+
+User = get_user_model()
+
+
+class GoogleLoginView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        token = request.data.get("id_token")
+        if not token:
+            return ResponseGenerator.response(message="id_token is required", status=400, data={})
+
+        try:
+            idinfo = id_token.verify_oauth2_token(
+                token,
+                google_requests.Request(),
+            )
+        except ValueError:
+            return ResponseGenerator.response(message="Invalid Google token", status=401, data={})
+
+        if idinfo.get("aud") not in settings.GOOGLE_OAUTH_CLIENT_IDS:
+            return ResponseGenerator.response(message="Invalid audience", status=401, data={})
+
+        email = idinfo.get("email")
+        if not email:
+            return ResponseGenerator.response(message="Email not available from Google", status=400, data={})
+
+        user, created = User.objects.get_or_create(
+            email=email,
+            defaults={
+                "username": email,
+                "first_name": idinfo.get("given_name", ""),
+                "last_name": idinfo.get("family_name", ""),
+            },
+        )
+
+        auth_token, _ = Token.objects.get_or_create(user=user)
+
+        return ResponseGenerator.response(data={
+                        "token":auth_token.key,
+                        "user":SignUpSerializer(user).data
+                    }, status=status.HTTP_200_OK, message="User account authenticated")
 
 class MarkUserAsPaymentCompleted(APIView):
     def post(self, request):

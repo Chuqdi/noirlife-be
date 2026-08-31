@@ -194,3 +194,11 @@ EMAIL_PORT = 465
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL")
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+
+
+GOOGLE_OAUTH_CLIENT_IDS = [
+    "YOUR_WEB_CLIENT_ID.apps.googleusercontent.com",
+    "YOUR_IOS_CLIENT_ID.apps.googleusercontent.com",
+    "YOUR_ANDROID_CLIENT_ID.apps.googleusercontent.com",
+]
+
