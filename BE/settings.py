@@ -197,8 +197,8 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 
 
 GOOGLE_OAUTH_CLIENT_IDS = [
-    "YOUR_WEB_CLIENT_ID.apps.googleusercontent.com",
-    "YOUR_IOS_CLIENT_ID.apps.googleusercontent.com",
+    "1074861480064-qcqotadsr1qi3fjmha1l2q0i9j0ll8q2.apps.googleusercontent.com",
+    "1074861480064-5trlso6f90625otg77ovl4gveifcjh04.apps.googleusercontent.com",
     "YOUR_ANDROID_CLIENT_ID.apps.googleusercontent.com",
 ]
 

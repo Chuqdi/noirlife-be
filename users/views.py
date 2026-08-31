@@ -66,15 +66,22 @@ class GoogleLoginView(APIView):
                 "username": email,
                 "first_name": idinfo.get("given_name", ""),
                 "last_name": idinfo.get("family_name", ""),
+                "is_google_auth":True
             },
         )
+        print(user)
 
         auth_token, _ = Token.objects.get_or_create(user=user)
+        print({
+                        "token":auth_token.key,
+                        "user":SignUpSerializer(user).data
+                    })
 
         return ResponseGenerator.response(data={
                         "token":auth_token.key,
                         "user":SignUpSerializer(user).data
-                    }, status=status.HTTP_200_OK, message="User account authenticated")
+                    }, status=status.HTTP_200_OK, 
+                    message="User account authenticated")
 
 class MarkUserAsPaymentCompleted(APIView):
     def post(self, request):

@@ -52,7 +52,8 @@ class SignUpSerializer(serializers.ModelSerializer):
             "phone_number",
             "ref_code",
             "is_book_session_payment_completed",
-            "safe_word"
+            "safe_word",
+            "is_google_auth"
         ]
         
 
