@@ -19,7 +19,6 @@ class MemoryAPIView(APIView):
                 message="Saved",
                 status=status.HTTP_200_OK
             )
-        print(serializer.errors)
         return ResponseGenerator.response(
             data={},
             message="Error saving memory",

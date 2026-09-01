@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
@@ -101,7 +102,7 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
-
+# postgresql://database_4u5n_user:lSxk8uEqjHCpkvc88rgOLPCJEIJ8uvdG@dpg-dab8um142hec73a8ljrg-a.oregon-postgres.render.com/database_4u5n
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -202,3 +203,12 @@ GOOGLE_OAUTH_CLIENT_IDS = [
     "YOUR_ANDROID_CLIENT_ID.apps.googleusercontent.com",
 ]
 
+
+
+# DATABASES = {
+#         'default': dj_database_url.config(
+#             default=os.environ.get("DATABASE_URL"),
+#             conn_max_age=600,
+#             conn_health_checks=True,
+#         )
+#     }

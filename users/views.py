@@ -69,13 +69,9 @@ class GoogleLoginView(APIView):
                 "is_google_auth":True
             },
         )
-        print(user)
 
         auth_token, _ = Token.objects.get_or_create(user=user)
-        print({
-                        "token":auth_token.key,
-                        "user":SignUpSerializer(user).data
-                    })
+       
 
         return ResponseGenerator.response(data={
                         "token":auth_token.key,
@@ -696,7 +692,6 @@ class CompletePasswordReset(APIView):
     def post(self, request):
         password = request.data.get("password")
         email = request.data.get("email")
-        print(email)
 
         if not password:
             return ResponseGenerator.response(
@@ -719,7 +714,6 @@ class CompletePasswordReset(APIView):
 
 class GetUserWithID(APIView):
     def get(self, request, id):
-        print("Here")
         try:
             user = User.objects.get(id=id)
             return ResponseGenerator.response(

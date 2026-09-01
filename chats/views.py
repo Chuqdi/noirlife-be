@@ -139,6 +139,8 @@ class SendMessageView(APIView):
             current_content = text
 
         history.append({"role": "user", "content": current_content})
+
+
        
 
         # ── Call ChatGPT ──────────────────────────────────────────────────────
@@ -160,6 +162,7 @@ class SendMessageView(APIView):
             )
             reply_text = response.choices[0].message.content
         except Exception as e:
+            print("Exception")
             print(e)
             return ResponseGenerator.response(
                 data=None,

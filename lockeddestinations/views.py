@@ -50,7 +50,6 @@ class LockedDestinationView(APIView):
                 message="Saved"
             )
         
-        print(serializer.errors)
         return ResponseGenerator.response(
             data={},
             status=status.HTTP_400_BAD_REQUEST,
