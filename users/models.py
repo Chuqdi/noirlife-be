@@ -99,7 +99,6 @@ class ReferalCode(models.Model):
 
 class UserEmailActivationCode(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    
     code = models.CharField(max_length=6, null=False, blank=False)
     date_created = models.DateTimeField(default = timezone.now)
 
