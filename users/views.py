@@ -64,8 +64,7 @@ class GoogleLoginView(APIView):
             email=email,
             defaults={
                 "username": email,
-                "first_name": idinfo.get("given_name", ""),
-                "last_name": idinfo.get("family_name", ""),
+                "full_name": f"{idinfo.get('given_name', '')} {idinfo.get('family_name', '')}".strip(),
                 "is_google_auth":True
             },
         )
