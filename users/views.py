@@ -65,6 +65,7 @@ class GoogleLoginView(APIView):
             defaults={
                 "username": email,
                 "full_name": f"{idinfo.get('given_name', '')} {idinfo.get('family_name', '')}".strip(),
+                "is_active": True,
                 "is_google_auth":True
             },
         )
@@ -403,8 +404,7 @@ class RegisterUserView(APIView):
             s.save()
 
             user = User.objects.get(email=email)
-            # user.is_active = True
-            # user.save()
+     
             code = generateUserOTP(user)
             name = user.full_name
             
@@ -657,10 +657,9 @@ class VerifyOTP(APIView):
         code = request.data.get("code")
         validatingOTP = validateOTPCode(code)
         if not validatingOTP.get("type"):
-            return Response(
-                data={
-                    "error": validatingOTP.get("message"),
-                },
+            return ResponseGenerator.response(
+                data={},
+                message=validatingOTP.get("message"),
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
