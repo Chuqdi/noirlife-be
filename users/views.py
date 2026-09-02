@@ -678,8 +678,11 @@ class VerifyOTP(APIView):
         t.start()
 
         return ResponseGenerator.response(
-            data=SignUpSerializer(user).data,
-            message="User password updated successfully",
+            data={
+                "data": SignUpSerializer(user).data,
+                "token": user.auth_token.key,
+                            },
+            message="User verified successfully",
             status=status.HTTP_200_OK,
         )
 
