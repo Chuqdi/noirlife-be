@@ -19,4 +19,5 @@ urlpatterns = [
     path("notifications/",include("notifications.urls")),
     path("places/",include("places.urls")),
     path("lockeddestinations/",include("lockeddestinations.urls")),
+    path("homelocations/",include("homelocations.urls")),
 ]

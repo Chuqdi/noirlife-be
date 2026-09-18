@@ -57,7 +57,8 @@ INSTALLED_APPS = [
     "memories",
     "notifications",
     "places",
-    "lockeddestinations"
+    "lockeddestinations",
+    "homelocations"
 ]
 
 MIDDLEWARE = [

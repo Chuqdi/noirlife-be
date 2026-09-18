@@ -56,6 +56,7 @@ class User(AbstractUser):
     is_new = models.BooleanField(default=True)
     is_book_session_payment_completed = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
+    notification_token = models.CharField(max_length=1000, null=True, blank=True)
     ##USERS SAFEWORD
     safe_word = models.CharField(max_length=1000, null=True, blank=True)
     referalCode = models.CharField(max_length=100, null=True, blank=True)

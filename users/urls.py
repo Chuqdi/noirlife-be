@@ -23,6 +23,7 @@ from .views import (
     RegisterUserView,
     EditUserWithProfileImageView,
     GetPostAdministrators,
+    SaveUserNotificationTokenAPIView,
     EditUserView,
     ToggleUserActiveState,
     UsersStatsView,
@@ -80,6 +81,7 @@ urlpatterns = [
     path("register/", RegisterUserView.as_view()),
     path("logout/", LogoutUser.as_view(), name="logout"),
     path("me/", UserMeAuth.as_view(), name="user_me_auth"),
+    path("notification-token/", SaveUserNotificationTokenAPIView.as_view()),
     path(
         "get_user_referal_code/",
         GetUserReferalCode.as_view(),

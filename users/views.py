@@ -37,6 +37,23 @@ from django.conf import settings
 User = get_user_model()
 
 
+
+
+
+class SaveUserNotificationTokenAPIView(APIView):
+    def put(self, request):
+        user = request.user
+        token = request.data.get("token")
+        
+        user.notification_token = token
+        user.save()
+        
+        return ResponseGenerator.response(
+            data={},
+            status=status.HTTP_200_OK,
+            message="Token saved"
+        )
+        
 class GoogleLoginView(APIView):
     permission_classes = [AllowAny]
 
