@@ -14,12 +14,19 @@ def _get_lock_or_none(locked_destination_id: int):
 
 def _is_still_pending_return(lock) -> bool:
     """
-    True if this trip is still active and the user hasn't returned yet —
-    i.e. not cancelled and left_at hasn't been set. This is the only signal
-    available at task-fire time since these tasks don't carry a live
-    location ping; it relies on left_at being set by your location tracker.
+    True if the user actually arrived at the destination and hasn't left
+    yet, and the trip hasn't been cancelled. Requiring arrived_at prevents
+    these "still at destination / head home" reminders from firing for a
+    user who never made it there in the first place. This is the only
+    signal available at task-fire time since these tasks don't carry a
+    live location ping; it relies on arrived_at/left_at being set by your
+    location tracker.
     """
-    return not lock.is_cancelled and lock.left_at is None
+    return (
+        not lock.is_cancelled
+        and lock.arrived_at is not None
+        and lock.left_at is None
+    )
 
 
 # --- Scheduled trip start notification (fires at scheduled_time) ---
