@@ -3,6 +3,8 @@ from django.db import models
 from users.models import User
 
 
+
+
 class HomeLocation(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="home_location")
     address_name = models.CharField(max_length=700, null=True, blank=True)
