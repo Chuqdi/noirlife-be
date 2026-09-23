@@ -20,4 +20,5 @@ urlpatterns = [
     path("places/",include("places.urls")),
     path("lockeddestinations/",include("lockeddestinations.urls")),
     path("homelocations/",include("homelocations.urls")),
+    path("locations/",include("locations.urls")),
 ]

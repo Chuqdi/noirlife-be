@@ -25,6 +25,7 @@ class LockedDestination(models.Model):
     arrived_at = models.DateTimeField(null=True, blank=True)
     left_at = models.DateTimeField(null=True, blank=True)
     drifted_at = models.DateTimeField(null=True, blank=True)
+    expected_return_time =  models.DateTimeField(null=True, blank=True)
     date_time_started = models.DateTimeField(
         default=timezone.now
     )
