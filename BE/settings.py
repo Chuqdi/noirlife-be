@@ -104,6 +104,21 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [
+                {
+                    "host": "127.0.0.1",
+                    "port": 6379,
+                    "socket_timeout": None,
+                }
+            ],
+        },
+    },
+}
 # postgresql://database_4u5n_user:lSxk8uEqjHCpkvc88rgOLPCJEIJ8uvdG@dpg-dab8um142hec73a8ljrg-a.oregon-postgres.render.com/database_4u5n
 
 # Password validation
@@ -214,3 +229,21 @@ DATABASES = {
             conn_health_checks=True,
         )
     }
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [os.environ.get("REDIS_DB_URL", "redis://127.0.0.1:6379")],
+        },
+    },
+}
+
+CELERY_BROKER_URL = os.environ.get("REDIS_DB_URL", "redis://localhost:6379/0")
+CELERY_RESULT_BACKEND = os.environ.get("REDIS_DB_URL", "redis://localhost:6379/0")
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = TIME_ZONE  # match your Django TIME_ZONE setting
+
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"

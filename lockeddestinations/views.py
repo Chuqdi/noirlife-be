@@ -36,7 +36,6 @@ class LockedDestinationView(APIView):
                 message="Saved"
             )
         
-        print(serializer.errors)
 
         return ResponseGenerator.response(
             data={},
