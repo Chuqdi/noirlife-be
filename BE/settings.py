@@ -247,3 +247,13 @@ CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = TIME_ZONE  # match your Django TIME_ZONE setting
 
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+
+
+
+# .env
+TWILIO_ACCOUNT_SID="MG689df6a1e8a5da455e9ef33dbf94bdc5"
+TWILIO_AUTH_TOKEN="your_auth_token"
+TWILIO_PHONE_NUMBER=+15551234567
+TWILIO_MESSAGING_SERVICE_SID="TEST"
+TWILIO_WHATSAPP_NUMBER=+14155238886
+TWILIO_STATUS_CALLBACK_URL="https://yourdomain.com/api/messaging/webhooks/status/"
