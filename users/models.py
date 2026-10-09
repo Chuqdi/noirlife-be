@@ -81,13 +81,6 @@ class User(AbstractUser):
 
 
 
-class DeviceToken(models.Model):
-    token = models.TextField()
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-
-    def __str__(self) -> str:
-        return self.user.email
-
 
 class ReferalCode(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="referal_code")

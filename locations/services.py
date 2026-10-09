@@ -38,13 +38,14 @@ def evaluate_location_update(
     }
 
     # --- Already arrived: only thing left to check is whether they've left ---
+    print("lock")
+    print(lock)
     if lock.arrived_at:
         if not lock.left_at and distance_to_destination > ARRIVAL_RADIUS_METERS:
             lock.left_at = timezone.now()
             lock.save(update_fields=["left_at"])
             result["left"] = True
 
-            print("running left")
             send_push_notification(
                 token=user.notification_token,
                 body=f"You have left {lock.destination_name}. We will check up to make sure you get home safe.",
@@ -93,12 +94,12 @@ def evaluate_location_update(
         lock.save(update_fields=["drifted_at"])
         result["drifted"] = True
 
-        print("running drifted")
         send_push_notification(
             token=user.notification_token,
             body=f"You have drifted from {lock.destination_name}. If this is expected, please reschedule another location",
             title=f"Drifted from {lock.destination_name}",
         )
+        
 
     return result
 

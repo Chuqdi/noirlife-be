@@ -12,7 +12,6 @@ from .views import (
     GetUsersView,
     LoginUserView,
     UpdateProfileImage,
-    UpdateUser,
     UpdateUserBasicInformation,
     UpdateUserPassword,
     UpdateUserView,
@@ -28,11 +27,9 @@ from .views import (
     ToggleUserActiveState,
     UsersStatsView,
     UpdateAdminPassword,
-    AddUserDeviceToken,
     ValidateEmail,
     UserEmailListView,
     ContactUsView,
-    AccountQuestionsSerializerView,
     ContinueForgotOTPPassword,
     SaveUserSafeWordView,
     GoogleLoginView
@@ -53,10 +50,7 @@ urlpatterns = [
         GetPostAdministrators.as_view(),
     ),
     path("update_safe_word/",SaveUserSafeWordView.as_view(),),
-    path(
-        "update_user_token/",
-        AddUserDeviceToken.as_view(),
-    ),
+   
     path(
         "get_users_stats/",
         UsersStatsView.as_view(),
@@ -128,17 +122,11 @@ urlpatterns = [
         UpdateUserPassword.as_view(),
         name="update_user_password",
     ),
-    path(
-        "update_user/",
-        UpdateUser.as_view(),
-    ),
+    
     path("contact_us/", ContactUsView.as_view()),
     path("get_user/<id>/", GetUserWithID.as_view(), name="get_user"),
     path("me/<int:id>/", UserMe.as_view(), name="user_me"),
     path("get_user_token_with_email/<email>/", GetUserTokenWithEmail.as_view()),
     path("update/", UpdateUserView.as_view()),
-    path(
-        "update_account_set_question_and_answers/",
-        AccountQuestionsSerializerView.as_view(),
-    ),
+    
 ]

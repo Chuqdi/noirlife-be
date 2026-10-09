@@ -53,13 +53,13 @@ class UserLocationUpdatedAPIView(APIView):
         # t.start()
         
         
-        # evaluate_location_update(
-        #     user = request.user,
-        #     lock=lock,
-        #     latitude=data["latitude"],
-        #     longitude =data["longitude"],
-        #     accuracy = data.get("accuracy")
-        # )
+        evaluate_location_update(
+            user = request.user,
+            lock=lock,
+            latitude=data["latitude"],
+            longitude =data["longitude"],
+            accuracy = data.get("accuracy")
+        )
         
         evaluate_home_location_update(
             user = request.user,

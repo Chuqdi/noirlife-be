@@ -59,7 +59,8 @@ INSTALLED_APPS = [
     "places",
     "lockeddestinations",
     "homelocations",
-    "locations"
+    "locations",
+    "billings"
 ]
 
 MIDDLEWARE = [
@@ -257,3 +258,5 @@ TWILIO_PHONE_NUMBER=+15551234567
 TWILIO_MESSAGING_SERVICE_SID="TEST"
 TWILIO_WHATSAPP_NUMBER=+14155238886
 TWILIO_STATUS_CALLBACK_URL="https://yourdomain.com/api/messaging/webhooks/status/"
+
+REVENUECAT_WEBHOOK_AUTH = os.environ["REVENUECAT_WEBHOOK_AUTH"]  # the secret you set in RevenueCat, without "Bearer "

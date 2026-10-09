@@ -3,7 +3,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from django.shortcuts import render
 import json
 from email_validator import validate_email
-from users.models import DeviceToken, ReferalCode, User, UserEmailActivationCode
+from users.models import  ReferalCode, User, UserEmailActivationCode
 from users.serializers import (
     ReferalCodeSerializer,
     SignUpSerializer,
@@ -232,23 +232,7 @@ class GetUsersView(APIView):
         )
 
 
-class AddUserDeviceToken(APIView):
-    permission_classes = [permissions.IsAuthenticated]
 
-    def post(self, request):
-        token = request.data.get("token")
-
-        user = request.user
-
-        tokenInstance, created = DeviceToken.objects.get_or_create(user=user)
-        tokenInstance.token = token
-        tokenInstance.save()
-
-        return ResponseGenerator.response(
-            status=status.HTTP_201_CREATED,
-            data={},
-            message="Device token added successfully",
-        )
 
 
 class ValidateEmail(APIView):
@@ -902,57 +886,6 @@ class GetUserTokenWithEmail(APIView):
             )
 
 
-class UpdateUser(APIView):
-    def sendEmailNow(self, user: User, title: str, template: str, data: object):
-        data_obj = {
-            **data,
-            "name": user.full_name.strip(),
-        }
-        message = render_to_string(template, data_obj)
-        t = threading.Thread(
-            target=send_email,
-            args=(
-                title,
-                message,
-                [user.email],
-            ),
-        )
-        t.start()
-
-    def post(self, request):
-        user = request.user
-        data = request.data
-        signup_stage = data.get("signup_stage", "")
-        send_payment_email = data.get("send_payment_email")
-
-        if signup_stage == "ANSWERED":
-            self.sendEmailNow(
-                user=user,
-                title="Spot secured",
-                template="emails/secure_spot.html",
-                data={},
-            )
-        if send_payment_email == "YES":
-            amount = data.get("amount", "")
-            planName = data.get("planName", "")
-            invoice = Invoice.objects.create(
-                user=user, amount=amount, planName=planName
-            )
-            self.sendEmailNow(
-                user=user,
-                title="Payment Invoice",
-                template="emails/receipt.html",
-                data={"inv": invoice, "ref_code": user.ref_code},
-            )
-
-        serializer = SignUpSerializer(instance=user, data=data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return ResponseGenerator.response(
-                data=serializer.data, message="User updated", status=status.HTTP_200_OK
-            )
-
-
 class UpdateUserView(APIView):
 
     def patch(self, request):
@@ -969,28 +902,4 @@ class UpdateUserView(APIView):
 
         return ResponseGenerator.response(
             data={}, message="user was not updated", status=status.HTTP_400_BAD_REQUEST
-        )
-
-
-class AccountQuestionsSerializerView(APIView):
-    def get(self, request):
-        user = request.user
-        account_question = AccountQuestions.objects.get_or_create(user=user)
-        account_question, created = account_question
-        return ResponseGenerator.response(
-            data=AccountQuestionsSerializer(account_question).data,
-            message="Created",
-            status=status.HTTP_201_CREATED,
-        )
-
-    def post(self, request):
-        user = request.user
-        data = request.data
-
-        AccountQuestions.objects.update_or_create(
-            user=user, defaults={"questions_answers": data}
-        )
-
-        return ResponseGenerator.response(
-            data=True, message="Created", status=status.HTTP_200_OK
         )
