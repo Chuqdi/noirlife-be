@@ -9,14 +9,15 @@ client = Client(account_sid, auth_token)
 
 def send_message(to_number, body):
     try:
-        client.messages \
-                        .create(
-                            body=body,
-                            from_=settings.TWILIO_SENDER_ID,
-                            to=to_number
-                        )
+        message = client.messages.create(
+            body=body,
+            messaging_service_sid=settings.TWILIO_MESSAGING_SERVICE_SID,
+            to=to_number,
+            status_callback=settings.TWILIO_STATUS_CALLBACK_URL,
+        )
+        return message.sid
     except Exception as ex:
-        pass
+        print(ex)
 
 
 
