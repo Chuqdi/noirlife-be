@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.db import IntegrityError, transaction
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
 from .models import Subscription, WebhookEvent
 
 User = get_user_model()
@@ -15,7 +16,7 @@ ACTIVE_TYPES = {"INITIAL_PURCHASE", "RENEWAL", "UNCANCELLATION", "PRODUCT_CHANGE
 
 @api_view(["POST"])
 @authentication_classes([])
-@permission_classes([])
+@permission_classes([AllowAny])
 def revenuecat_webhook(request):
     auth = request.headers.get("Authorization", "")
     if not hmac.compare_digest(auth, settings.REVENUECAT_WEBHOOK_AUTH):
