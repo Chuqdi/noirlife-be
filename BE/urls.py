@@ -44,5 +44,5 @@ urlpatterns = [
     path("lockeddestinations/",include("lockeddestinations.urls")),
     path("homelocations/",include("homelocations.urls")),
     path("locations/",include("locations.urls")),
-    path("billings/",include("billings.urls")),
+    path("subscriptions/",include("subscriptions.urls")),
 ]
