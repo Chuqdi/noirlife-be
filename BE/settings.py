@@ -60,7 +60,7 @@ INSTALLED_APPS = [
     "lockeddestinations",
     "homelocations",
     "locations",
-    # "billings"
+    "subscriptions"
 ]
 
 MIDDLEWARE = [
