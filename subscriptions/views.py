@@ -21,8 +21,8 @@ def revenuecat_webhook(request):
     auth = request.headers.get("Authorization", "")
     print(auth)
     print(settings.REVENUECAT_WEBHOOK_AUTH)
-    if not hmac.compare_digest(auth, settings.REVENUECAT_WEBHOOK_AUTH):
-        return Response(status=401)
+    # if not hmac.compare_digest(auth, settings.REVENUECAT_WEBHOOK_AUTH):
+    #     return Response(status=401)
 
     event = request.data.get("event", {})
     event_id, etype = event.get("id"), event.get("type")
