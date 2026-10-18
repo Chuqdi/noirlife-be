@@ -19,6 +19,8 @@ ACTIVE_TYPES = {"INITIAL_PURCHASE", "RENEWAL", "UNCANCELLATION", "PRODUCT_CHANGE
 @permission_classes([AllowAny])
 def revenuecat_webhook(request):
     auth = request.headers.get("Authorization", "")
+    print(auth)
+    print(settings.REVENUECAT_WEBHOOK_AUTH)
     if not hmac.compare_digest(auth, settings.REVENUECAT_WEBHOOK_AUTH):
         return Response(status=401)
 
