@@ -19,10 +19,10 @@ def twilio_status_webhook(request):
     message_sid = request.POST.get("MessageSid")
     message_status = request.POST.get("MessageStatus")  # queued, sent, delivered, undelivered, failed
     error_code = request.POST.get("ErrorCode")
-    print(request.POST)
+    error_message = request.POST.get("ErrorMessage")
 
     # Update your own records here, e.g. find the message by SID and save the status
-    print(message_sid, message_status, error_code)
+    print(message_sid, message_status, error_code, error_message)
 
     return HttpResponse(status=204)
 
